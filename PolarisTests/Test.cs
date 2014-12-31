@@ -13,17 +13,17 @@ namespace PolarisTests
         [SetUp]
         public void Setup()
         {
-            PacketHandlers.loadPacketHandlers();
+            PacketHandlers.LoadPacketHandlers();
         }
         [Test]
         public void TestLoginLookup()
         {
-            Assert.IsNotNull(PacketHandlers.getHandlerFor(0x11, 0x0));
+            Assert.IsNotNull(PacketHandlers.GetHandlerFor(0x11, 0x0));
         }
         [Test]
         public void TestAllHandlers()
         {
-            foreach (PacketHandler p in PacketHandlers.getLoadedHandlers())
+            foreach (PacketHandler p in PacketHandlers.GetLoadedHandlers())
             {
                 Assert.IsNotNull(p);
                 Assert.IsInstanceOf(typeof(PacketHandler), p, "Loaded PacketHandler is not a Packet Handler!");
@@ -41,19 +41,20 @@ namespace PolarisTests
         {
             unsafe
             {
+                var size = Marshal.SizeOf(typeof(Character.JobParam));
                 Assert.IsNotNull(jp);
-                byte[] jpArr = new byte[sizeof(Character.JobParam)];
-                IntPtr ptr = Marshal.AllocHGlobal(sizeof(Character.JobParam));
+                byte[] jpArr = new byte[size];
+                IntPtr ptr = Marshal.AllocHGlobal(size);
 
                 Marshal.StructureToPtr(jp, ptr, true);
-                Marshal.Copy(ptr, jpArr, 0, sizeof(Character.JobParam));
+                Marshal.Copy(ptr, jpArr, 0, size);
                 Marshal.FreeHGlobal(ptr);
 
                 foreach (byte b in jpArr)
                 {
                     Assert.AreEqual(0, b);
                 }
-                Assert.AreEqual(sizeof(Character.JobParam), jpArr.Length);
+                Assert.AreEqual(size, jpArr.Length);
             }
         }
 
@@ -73,14 +74,13 @@ namespace PolarisTests
         [Test]
         public unsafe void TestStructureWrite()
         {
-            var structureSize = sizeof(Character.JobParam);
+            var structureSize = Marshal.SizeOf(typeof(Character.JobParam));
             Character.JobParam jp = new Character.JobParam();
-            jp.entries.entry0.level = 7;
+            jp.entries.hunter.level = 7;
             writer.WriteStruct(jp);
             byte[] structArray = writer.ToArray();
             Assert.AreEqual(structureSize, structArray.Length);
-            Assert.AreEqual(7, structArray[8]);
+            Assert.AreEqual(7, structArray[12]);
         }
     }
 }
-

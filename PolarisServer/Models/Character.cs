@@ -5,12 +5,49 @@ using System.ComponentModel.DataAnnotations;
 using PolarisServer.Packets;
 using PolarisServer.Database;
 
-
-
 namespace PolarisServer.Models
 {
     public class Character
     {
+        public enum Race : ushort
+        {
+            Human = 0,
+            Newman,
+            Cast,
+            Dewman
+        }
+
+        public enum Gender : ushort
+        {
+            Male = 0,
+            Female
+        }
+
+        public enum ClassType : byte
+        {
+            Hunter = 0,
+            Fighter,
+            Ranger,
+            Gunner,
+            Force,
+            Techer,
+            Braver,
+            Bouncer,
+        }
+        
+        [Flags]
+        public enum ClassTypeField : byte
+        {
+            Hunter = 1,
+            Fighter = 2,
+            Ranger = 4,
+            Gunner = 8,
+            Force = 16,
+            Techer = 32,
+            Braver = 64,
+            Bouncer = 128
+        }
+
         [StructLayout(LayoutKind.Sequential)]
         public struct HSVColor
         {
@@ -18,24 +55,36 @@ namespace PolarisServer.Models
         }
 
         [StructLayout(LayoutKind.Sequential)]
+        public struct Figure
+        {
+            public ushort x, y, z; // Great naming, SEGA
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
         public struct JobEntry
         {
             public ushort level;
-            public ushort unknown_2;
+            public ushort level2; // Usually the same as the above, what is this used for?
             public uint exp;
         }
 
         [StructLayout(LayoutKind.Sequential)]
         public struct Entries
         {
-            public JobEntry entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7;
+            public JobEntry hunter, fighter, ranger, gunner, force, techer, braver, bouncer;
         }
 
         [StructLayout(LayoutKind.Sequential)]
         public unsafe struct JobParam
         {
             public fixed byte unknown_0[4];
-            public uint unknown_4;
+            public ClassType mainClass;
+            public ClassType subClass;
+            public fixed byte uknown_6[2];
+            public ClassTypeField enabledClasses;
+            public fixed byte uknown_8[2];
+            public byte padding0;
+
             public Entries entries;
 
             public ushort unknown_48, unknown_4A;
@@ -54,35 +103,40 @@ namespace PolarisServer.Models
         [StructLayout(LayoutKind.Sequential)]
         public unsafe struct LooksParam
         {
-            public fixed byte charData[86];
-            public fixed ushort accData[3];
-            public fixed byte unknown_4[6];
+            public fixed byte padding[4];
+            public ushort height;
+            public fixed byte charData[80]; // Figure Data, needs more work
+            public ushort accessoryData1;
+            public ushort accessoryData2;
+            public ushort accessoryData3;
+            public ushort accessoryData4;
             public HSVColor costumeColor;
-            public fixed byte unknown_5[12];
-            public HSVColor skinColor;
+            public HSVColor mainColor;
+            public HSVColor sub1Color;
+            public HSVColor sub2Color;
+            public HSVColor sub3Color;
             public HSVColor eyeColor;
-            public fixed byte unknown_6[6];
             public HSVColor hairColor;
-            public fixed byte unknown_7[2];
+            public int modelID;
+            public ushort mainParts;
             public ushort bodyPaint;
-            public byte emblem;
-            public byte eyePattern;
+            public ushort emblem;
+            public ushort eyePattern;
+            public ushort eyelashes;
             public ushort eyebrows;
-            public byte eyelashes;
-            public uint faceVariant;
-            public byte makeupPattern1;
-            public byte hairstyle;
-            public ushort acc1;
-            public ushort acc2;
-            public ushort acc3;
-            public byte makeupPattern2;
-            public ushort acc4;
+            public ushort face;
+            public ushort facePaint1;
+            public ushort hairstyle;
+            public ushort accessory1;
+            public ushort accessory2;
+            public ushort accessory3;
+            public ushort facePaint2;
+            public ushort arms;
+            public ushort legs;
+            public ushort accessory4;
             public ushort costume;
-            public fixed byte unknown_8[2];
-            public byte race;
-            public byte unknown_9;
-            public byte female;
-            public fixed byte unknown_10[5];
+            public Race race;
+            public Gender gender;
         }
 
         // Probably more info than this
@@ -126,9 +180,11 @@ namespace PolarisServer.Models
             
         public LooksParam Looks { get; set; }
         public JobParam Jobs { get; set; }
+    }
 
-        public Character()
-        {
-        }
+
+    public struct MysteryPositions
+    {
+        public float a, b, c, facingAngle, x, y, z;
     }
 }

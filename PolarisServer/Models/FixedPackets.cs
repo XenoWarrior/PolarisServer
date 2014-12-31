@@ -20,17 +20,14 @@ namespace PolarisServer.Models
             this.flags1 = flags1;
             this.flags2 = flags2;
         }
-    }
 
-    [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct CharacterListPacket
-    {
-        public UInt32 numberOfCharacters, characterId, playerID;
-        public fixed byte unknown_13[0xC];
-        public fixed ushort name[16];
-        public UInt32 padding;
-        public Character.LooksParam looks;
-        public Character.JobParam jobs;
+        public PacketHeader(byte type, byte subtype) : this(type, subtype, 0)
+        {
+        }
+
+        public PacketHeader(byte type, byte subtype, byte flags1) : this(0, type, subtype, flags1, 0)
+        {
+        }
     }
 }
 
